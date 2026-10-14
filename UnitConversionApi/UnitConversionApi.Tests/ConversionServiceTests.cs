@@ -50,4 +50,49 @@ public class ConversionServiceTests
         Assert.Throws<ArgumentException>(
             () => _service.Convert(request));
     }
+
+    [Theory]
+    [InlineData(1, "kilometers", "meters", 1000)]
+    [InlineData(1, "miles", "feet", 5280)]
+    [InlineData(1, "kilograms", "grams", 1000)]
+    [InlineData(1, "kilograms", "pounds", 2.204622)]
+    [InlineData(32, "fahrenheit", "celsius", 0)]
+    [InlineData(0, "celsius", "kelvin", 273.15)]
+    public void Convert_ValidConversion_ReturnsExpectedResult(
+        double value,
+        string fromUnit,
+        string toUnit,
+        double expected)
+    {
+        var request = new ConversionRequest
+        {
+            Value = value,
+            FromUnit = fromUnit,
+            ToUnit = toUnit
+        };
+
+        var result = _service.Convert(request);
+
+        Assert.Equal(expected, result.ConvertedValue, 5);
+    }
+
+    [Theory]
+    [InlineData(-1, "kilograms", "grams")]
+    [InlineData(-300, "celsius", "fahrenheit")]
+    [InlineData(10, "meters", "celsius")]
+    public void Convert_InvalidConversion_ThrowsArgumentException(
+        double value,
+        string fromUnit,
+        string toUnit)
+    {
+        var request = new ConversionRequest
+        {
+            Value = value,
+            FromUnit = fromUnit,
+            ToUnit = toUnit
+        };
+
+        Assert.Throws<ArgumentException>(
+            () => _service.Convert(request));
+    }
 }
